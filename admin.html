@@ -37,11 +37,25 @@
 </head>
 <body>
 
-<!-- [보안] 내용을 감싸는 컨테이너 (비밀번호 맞출 때까지 숨김) -->
+<!-- [보안] 로그인 화면 (비밀번호 입력창) -->
+<div id="login-overlay">
+    <div class="login-box">
+        <h3 class="mb-4 fw-bold">🔒 관리자 접속</h3>
+        <p class="text-secondary mb-4">비밀번호를 입력해주세요.</p>
+        <input type="password" id="adminPasswordInput" class="form-control form-control-lg mb-3" placeholder="비밀번호 입력" onkeypress="if(event.keyCode==13) checkPassword();">
+        <button onclick="checkPassword()" class="btn btn-primary w-100 btn-lg">로그인</button>
+        <div id="loginMsg" class="mt-3 text-danger small"></div>
+    </div>
+</div>
+
+<!-- [보안] 내용을 감싸는 컨테이너 (로그인 성공 시 보임) -->
 <div id="admin-container" class="container" style="display: none;">
     <div class="d-flex justify-content-between align-items-center mb-5">
         <h1>🛠️ 관리자 대시보드</h1>
-        <button onclick="window.location.reload()" class="btn btn-dark">🔄 새로고침</button>
+        <div>
+            <button onclick="logout()" class="btn btn-outline-danger me-2">로그아웃</button>
+            <button onclick="window.location.reload()" class="btn btn-dark">🔄 새로고침</button>
+        </div>
     </div>
 
     <!-- [섹션 1] 참여 신청 현황 -->
@@ -101,10 +115,11 @@
     // =================================================================
     // [보안] 관리자 비밀번호 설정 (SHA-256 해시)
     // =================================================================
+    // "6980"의 SHA-256 해시값입니다. (소스 코드에서 "6980"을 볼 수 없습니다)
     const ADMIN_HASH = "4b3044a03525124d67353f478822080447335193913076135248559287313627";
 
-    // 해시 생성 함수
-    async function sha256(message) {
+    // 1. SHA-256 해시 함수 (HTTPS 환경 필수)
+    window.sha256 = async function(message) {
         const msgBuffer = new TextEncoder().encode(message);
         const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
         const hashArray = Array.from(new Uint8Array(hashBuffer));
@@ -112,31 +127,61 @@
         return hashHex;
     }
 
-    // 비밀번호 확인 로직
-    async function checkPassword() {
-        const userPassword = prompt("관리자 비밀번호를 입력하세요:");
-        
-        if (!userPassword) {
-            alert("비밀번호가 입력되지 않았습니다.");
-            window.location.href = "index.html";
+    // 2. 로그인 확인 함수
+    window.checkPassword = async function() {
+        // HTTPS 환경 체크 (로컬호스트나 깃허브 페이지에서는 정상 작동)
+        if (!window.isSecureContext) {
+            alert("보안 오류: 이 페이지는 HTTPS(깃허브 등) 환경에서만 작동합니다.");
             return;
         }
 
-        const userHash = await sha256(userPassword);
+        const input = document.getElementById("adminPasswordInput").value;
+        const msgDiv = document.getElementById("loginMsg");
+        
+        if (!input) {
+            msgDiv.innerText = "비밀번호를 입력해주세요.";
+            return;
+        }
 
-        if (userHash === ADMIN_HASH) {
-            // 비밀번호 일치 시 화면 표시
-            document.getElementById("admin-container").style.display = "block";
-            initAdminPage();
-        } else {
-            // 불일치 시 차단
-            alert("접근 권한이 없습니다.");
-            window.location.href = "index.html";
+        try {
+            const inputHash = await window.sha256(input);
+            
+            if (inputHash === ADMIN_HASH) {
+                // 로그인 성공!
+                // 세션 스토리지에 '로그인됨' 상태 저장 (브라우저 닫기 전까지 유지)
+                sessionStorage.setItem("adminAuth", "true");
+                
+                showAdminScreen();
+            } else {
+                msgDiv.innerText = "비밀번호가 틀렸습니다.";
+                document.getElementById("adminPasswordInput").value = "";
+                document.getElementById("adminPasswordInput").focus();
+            }
+        } catch (e) {
+            console.error(e);
+            msgDiv.innerText = "암호화 오류 발생 (브라우저 버전을 확인하세요)";
         }
     }
 
-    // 페이지 로드 시 보안 검사 실행
-    checkPassword();
+    // 3. 로그아웃 함수
+    window.logout = function() {
+        sessionStorage.removeItem("adminAuth");
+        window.location.reload();
+    }
+
+    // 4. 관리자 화면 보여주기 & 데이터 로드
+    function showAdminScreen() {
+        document.getElementById("login-overlay").style.display = "none";
+        document.getElementById("admin-container").style.display = "block";
+        initAdminPage();
+    }
+
+    // [자동 로그인 체크] 페이지 로드 시 세션 확인
+    window.onload = function() {
+        if (sessionStorage.getItem("adminAuth") === "true") {
+            showAdminScreen();
+        }
+    }
 
     // =================================================================
     // [필수] 여기에 본인의 Firebase Config를 붙여넣으세요!
@@ -154,12 +199,12 @@
     // Firebase 초기화 변수
     let app, db;
 
-    // 데이터 로딩 함수들을 감싸서 비밀번호 통과 시에만 실행되도록 함
+    // 데이터 로딩 함수 (로그인 성공 후 실행됨)
     function initAdminPage() {
         app = initializeApp(firebaseConfig);
         db = getFirestore(app);
 
-        // 전역 함수 등록
+        // 삭제 함수
         window.deleteItem = async (collectionName, docId) => {
             if (confirm("정말로 이 데이터를 삭제하시겠습니까?\n(삭제 후에는 복구할 수 없습니다)")) {
                 try {
