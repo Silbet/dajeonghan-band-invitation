@@ -17,7 +17,8 @@
 </head>
 <body>
 
-<div class="container">
+<!-- [보안] 내용을 감싸는 컨테이너 (비밀번호 맞출 때까지 숨김) -->
+<div id="admin-container" class="container" style="display: none;">
     <div class="d-flex justify-content-between align-items-center mb-5">
         <h1>🛠️ 관리자 대시보드</h1>
         <button onclick="window.location.reload()" class="btn btn-dark">🔄 새로고침</button>
@@ -78,6 +79,46 @@
     from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
     // =================================================================
+    // [보안] 관리자 비밀번호 설정 (SHA-256 해시)
+    // =================================================================
+    const ADMIN_HASH = "3a95d5777770878546112932f91757850a4d04812a666e340e417852c0099450";
+
+    // 해시 생성 함수
+    async function sha256(message) {
+        const msgBuffer = new TextEncoder().encode(message);
+        const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        return hashHex;
+    }
+
+    // 비밀번호 확인 로직
+    async function checkPassword() {
+        const userPassword = prompt("관리자 비밀번호를 입력하세요:");
+        
+        if (!userPassword) {
+            alert("비밀번호가 입력되지 않았습니다.");
+            window.location.href = "index.html";
+            return;
+        }
+
+        const userHash = await sha256(userPassword);
+
+        if (userHash === ADMIN_HASH) {
+            // 비밀번호 일치 시 화면 표시
+            document.getElementById("admin-container").style.display = "block";
+            initAdminPage();
+        } else {
+            // 불일치 시 차단
+            alert("접근 권한이 없습니다.");
+            window.location.href = "index.html";
+        }
+    }
+
+    // 페이지 로드 시 보안 검사 실행
+    checkPassword();
+
+    // =================================================================
     // [필수] 여기에 본인의 Firebase Config를 붙여넣으세요!
     // =================================================================
     const firebaseConfig = {
@@ -90,24 +131,32 @@
       measurementId: "G-YDFCDHJJ71"
     };
 
-    // Firebase 초기화
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
+    // Firebase 초기화 변수
+    let app, db;
 
-    // 전역 함수로 만들기 (HTML 버튼에서 onclick으로 호출하기 위해 window 객체에 등록)
-    window.deleteItem = async (collectionName, docId) => {
-        if (confirm("정말로 이 데이터를 삭제하시겠습니까?\n(삭제 후에는 복구할 수 없습니다)")) {
-            try {
-                await deleteDoc(doc(db, collectionName, docId));
-                alert("삭제되었습니다.");
-                // 화면 새로고침하여 반영
-                window.location.reload();
-            } catch (error) {
-                console.error("삭제 실패:", error);
-                alert("삭제 중 오류가 발생했습니다 권한을 확인하세요.");
+    // 데이터 로딩 함수들을 감싸서 비밀번호 통과 시에만 실행되도록 함
+    function initAdminPage() {
+        app = initializeApp(firebaseConfig);
+        db = getFirestore(app);
+
+        // 전역 함수 등록
+        window.deleteItem = async (collectionName, docId) => {
+            if (confirm("정말로 이 데이터를 삭제하시겠습니까?\n(삭제 후에는 복구할 수 없습니다)")) {
+                try {
+                    await deleteDoc(doc(db, collectionName, docId));
+                    alert("삭제되었습니다.");
+                    window.location.reload();
+                } catch (error) {
+                    console.error("삭제 실패:", error);
+                    alert("삭제 중 오류가 발생했습니다 권한을 확인하세요.");
+                }
             }
-        }
-    };
+        };
+
+        // 데이터 로드 실행
+        loadRsvps();
+        loadGuestbook();
+    }
 
     // 1. 참여 명단 불러오기
     async function loadRsvps() {
@@ -129,7 +178,7 @@
             querySnapshot.forEach((doc) => {
                 count++;
                 const data = doc.data();
-                const docId = doc.id; // 삭제할 때 필요한 문서 ID
+                const docId = doc.id; 
                 
                 let dateStr = "-";
                 if (data.createdAt) {
@@ -187,7 +236,6 @@
                     dateStr = `${date.getMonth() + 1}/${date.getDate()} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
                 }
 
-                // 내용이 너무 길면 자르기
                 const content = data.content.length > 50 ? data.content.substring(0, 50) + "..." : data.content;
 
                 html += `
@@ -211,10 +259,6 @@
             tableBody.innerHTML = '<tr><td colspan="5" class="text-center text-danger">로드 실패</td></tr>';
         }
     }
-
-    // 실행
-    loadRsvps();
-    loadGuestbook();
 </script>
 
 </body>
