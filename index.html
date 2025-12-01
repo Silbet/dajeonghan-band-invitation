@@ -300,7 +300,14 @@
             
         } catch (error) {
             console.error("Error adding RSVP: ", error);
-            alert("저장 중 오류가 발생했습니다.");
+            // [수정 포인트 1] 참여 접수 에러 메시지 커스텀
+            if(error.code === 'permission-denied') {
+                alert("저장 실패: 권한이 없습니다. (파이어베이스 규칙을 확인하세요)");
+            } else if (error.code === 'unavailable') {
+                alert("저장 실패: 네트워크 연결을 확인해주세요.");
+            } else {
+                alert("저장 중 오류가 발생했습니다: " + error.message);
+            }
         } finally {
             btnRsvp.disabled = false;
             btnRsvp.innerText = "참여 등록하기";
@@ -338,7 +345,12 @@
             document.getElementById("guestContent").value = "";
         } catch (error) {
             console.error("Error adding guestbook: ", error);
-            alert("방명록 등록 실패");
+            // [수정 포인트 2] 방명록 작성 에러 메시지 커스텀
+            if(error.code === 'permission-denied') {
+                alert("등록 실패: 권한이 없습니다.");
+            } else {
+                alert("방명록 등록 실패: " + error.message);
+            }
         }
     });
 
@@ -390,6 +402,16 @@
                 btnLoadMore.style.display = "inline-block";
             } else {
                 btnLoadMore.style.display = "none";
+            }
+        }, (error) => {
+            // [수정 포인트 3] 방명록 불러오기 에러 메시지 (화면에 표시되는 부분)
+            console.error("Error fetching guestbook: ", error);
+            if (error.code === 'permission-denied') {
+                listContainer.innerHTML = `<div class="alert alert-danger">데이터 권한이 없습니다.<br>파이어베이스 설정을 확인하세요.</div>`;
+            } else if (error.code === 'failed-precondition') {
+                 listContainer.innerHTML = `<div class="alert alert-danger">쿼리 오류입니다.</div>`;
+            } else {
+                listContainer.innerHTML = `<div class="text-center text-danger py-3">로딩 실패<br>(${error.message})</div>`;
             }
         });
     }
