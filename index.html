@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GROOVE MUSIC LIVE 2026</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Google Fonts (Pretendard style) -->
+    <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" rel="stylesheet">
+    
+    <style>
+        /* [디자인 커스텀: 다크 모드 & 모바일 최적화] */
+        body {
+            background-color: #000000;
+            color: #ffffff;
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+            padding-bottom: 50px;
+        }
+        .container {
+            max-width: 500px; /* 모바일 뷰에 최적화된 너비 */
+        }
+        /* 포스터 이미지 스타일 */
+        .poster-wrapper {
+            position: relative;
+            width: 100%;
+            border-radius: 0 0 20px 20px;
+            overflow: hidden;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(255, 255, 255, 0.1);
+        }
+        .poster-img {
+            width: 100%;
+            display: block;
+        }
+        
+        /* 섹션 공통 스타일 */
+        .section-title {
+            font-weight: 800;
+            font-size: 1.4rem;
+            margin-bottom: 15px;
+            color: #ffffff;
+            border-left: 4px solid #6c5ce7; /* 포인트 컬러 */
+            padding-left: 10px;
+        }
+        .info-box {
+            background-color: #1a1a1a;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+            border: 1px solid #333;
+        }
+        
+        /* 폼 요소 커스텀 */
+        .form-control, .form-select {
+            background-color: #2d2d2d;
+            border: 1px solid #444;
+            color: #fff;
+            border-radius: 8px;
+        }
+        .form-control:focus, .form-select:focus {
+            background-color: #2d2d2d;
+            color: #fff;
+            border-color: #6c5ce7;
+            box-shadow: 0 0 0 0.25rem rgba(108, 92, 231, 0.25);
+        }
+
+        /* [수정] Placeholder(입력 전 안내 문구) 색상 밝게 변경 */
+        .form-control::placeholder {
+            color: #cccccc !important; /* 밝은 회색 */
+            opacity: 1; /* 파이어폭스 등 투명도 이슈 해결 */
+        }
+        
+        /* 안내사항 강조 */
+        .notice-list li {
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+            color: #000000;
+        }
+        
+        /* 버튼 스타일 */
+        .btn-primary {
+            background-color: #6c5ce7;
+            border: none;
+            padding: 12px;
+            font-weight: bold;
+            border-radius: 8px;
+        }
+        .btn-primary:hover {
+            background-color: #5b4cc4;
+        }
+        .btn-kakao {
+            background-color: #FEE500;
+            color: #000;
+            font-weight: bold;
+            border: none;
+        }
+        
+        /* 방명록 카드 */
+        .guestbook-card {
+            background-color: #1a1a1a;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-left: 3px solid #444;
+            transition: transform 0.2s;
+        }
+        .guestbook-card:hover {
+            border-left: 3px solid #6c5ce7;
+        }
+        .guest-meta {
+            font-size: 0.8rem;
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container px-0">
+    
+    <!-- [섹션 1: 메인] -->
+    <div class="poster-wrapper">
+        <!-- poster.png가 없으면 placeholder 이미지가 뜹니다 -->
+        <img src="poster.png" onerror="this.src='https://placehold.co/600x800/222/FFF?text=Groove+Music+Live'" class="poster-img" alt="공연 포스터">
+        <div class="p-4 bg-gradient-dark">
+            <h1 class="fw-bold display-6">2026 GROOVE<br>MUSIC LIVE</h1>
+            <p class="text-secondary mt-2">당신의 겨울을 뜨겁게 달굴 최고의 무대.<br>'다정한 밴드' 공연에 초대합니다.</p>
+        </div>
+    </div>
+
+    <div class="px-3">
+        <!-- [섹션 2: 상세 정보] -->
+        <div class="section-title">공연 정보</div>
+        <div class="info-box">
+            <div class="mb-3">
+                <label class="text-secondary small">일시</label>
+                <div class="fs-5 fw-bold">2026년 1월 3일 (토)</div>
+                <div class="fs-5">오후 5시 ~ 7시</div>
+            </div>
+            
+            <div class="mb-4">
+                <label class="text-secondary small">장소</label>
+                <div class="fw-bold">서울 중랑구 동일로 711 지하 1층</div>
+                <div>그루브뮤직스튜디오</div>
+                <div class="mt-2">
+                    <a href="#" class="btn btn-kakao w-100 btn-sm">📍 카카오맵 바로가기</a>
+                </div>
+            </div>
+
+            <div class="alert alert-dark border-secondary" role="alert">
+                <h6 class="fw-bold text-warning mb-2">⚠️ 안내사항</h6>
+                <ul class="notice-list ps-3 mb-0">
+                    <li>🎤 외부 음식 반입 가능합니다.<br><span class="text-secondary small">(배달도 가능하나 가급적 포장 이용해주시면 감사하겠습니다.)</span></li>
+                    <li>🎤 쓰레기는 봉투에 분리수거 해주세요.</li>
+                    <li>🎤 좌석은 선착순으로 지정됩니다.</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- [섹션 3: 참여 여부 접수 (RSVP)] -->
+        <div class="section-title">참여 여부 접수</div>
+        <div class="info-box">
+            <div class="mb-3">
+                <label for="inviterSelect" class="form-label text-secondary small">초대 지인 이름</label>
+                <select id="inviterSelect" class="form-select">
+                    <option selected disabled value="">선택해주세요</option>
+                    <option value="김민수">김민수</option>
+                    <option value="김민주">김민주</option>
+                    <option value="김준범">김준범</option>
+                    <option value="박다은">박다은</option>
+                    <option value="송태관">송태관</option>
+                    <option value="이석형">이석형</option>
+                    <option value="황겸">황겸</option>
+                </select>
+            </div>
+            <div class="mb-4">
+                <label for="visitorName" class="form-label text-secondary small">본인 이름 (실명)</label>
+                <input type="text" class="form-control" id="visitorName" placeholder="실명을 입력해주세요" maxlength="10">
+                <div class="form-text text-secondary" style="font-size: 0.75rem;">
+                    * 정확한 실명 입력 부탁드립니다.
+                </div>
+            </div>
+            <button id="btnRsvp" class="btn btn-primary w-100">참여 등록하기</button>
+        </div>
+
+        <!-- [섹션 4: 방명록] -->
+        <div class="section-title">방명록</div>
+        <div class="info-box mb-4">
+            <div class="row g-2 mb-2">
+                <div class="col-4">
+                    <input type="text" class="form-control" id="guestName" placeholder="닉네임" maxlength="10">
+                </div>
+                <div class="col-8">
+                    <input type="text" class="form-control" id="guestContent" placeholder="내용 (200자)" maxlength="200">
+                </div>
+            </div>
+            <button id="btnGuestbook" class="btn btn-outline-light w-100 btn-sm">등록</button>
+        </div>
+
+        <!-- 방명록 리스트 영역 -->
+        <div id="guestbookList">
+            <!-- 데이터가 로딩되면 여기에 카드가 추가됩니다 -->
+            <div class="text-center text-secondary py-3">불러오는 중...</div>
+        </div>
+        
+        <!-- 더보기 버튼 (초기엔 숨김) -->
+        <div class="text-center mt-3 mb-5">
+            <button id="btnLoadMore" class="btn btn-dark btn-sm rounded-pill px-4" style="display: none;">
+                👇 더 보기
+            </button>
+        </div>
+
+    </div>
+
+    <footer class="text-center text-secondary small mt-5 pt-3 border-top border-dark">
+        &copy; 2026 다정한 밴드
+    </footer>
+</div>
+
+<!-- Firebase Modular SDK -->
+<script type="module">
+    // Firebase 라이브러리 import (CDN)
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+    import { 
+        getFirestore, 
+        collection, 
+        addDoc, 
+        query, 
+        where, 
+        getDocs, 
+        orderBy, 
+        limit, 
+        onSnapshot, 
+        serverTimestamp 
+    } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+
+    // ==========================================================
+    // 1. Firebase 설정 (여기에 복사한 Config를 넣으세요!)
+    // ==========================================================
+    const firebaseConfig = {
+      apiKey: "AIzaSyAXBBLO3VVvrA3cNmcRLlrkEJdJqdLbjUo",
+      authDomain: "band-concert-invite.firebaseapp.com",
+      projectId: "band-concert-invite",
+      storageBucket: "band-concert-invite.firebasestorage.app",
+      messagingSenderId: "249455279668",
+      appId: "1:249455279668:web:27c0d16d9c2cf987df9461",
+      measurementId: "G-YDFCDHJJ71"
+    };
+
+    // Firebase 초기화
+    let app, db;
+    try {
+        app = initializeApp(firebaseConfig);
+        db = getFirestore(app);
+    } catch (e) {
+        console.error("Firebase 초기화 실패. config를 확인하세요.", e);
+        alert("시스템 오류: Firebase 설정이 필요합니다.");
+    }
+
+    // ==========================================================
+    // [기능 1] 참여 여부 접수 (RSVP)
+    // ==========================================================
+    const btnRsvp = document.getElementById("btnRsvp");
+    
+    btnRsvp.addEventListener("click", async () => {
+        const inviter = document.getElementById("inviterSelect").value;
+        const visitor = document.getElementById("visitorName").value.trim();
+
+        // 1. 유효성 검사
+        if (!inviter) return alert("초대 지인 이름을 선택해주세요.");
+        if (!visitor) return alert("본인 이름을 입력해주세요.");
+        if (visitor.length > 10) return alert("이름은 10자를 넘을 수 없습니다.");
+
+        // 버튼 비활성화 (중복 클릭 방지)
+        btnRsvp.disabled = true;
+        btnRsvp.innerText = "처리 중...";
+
+        try {
+            // 2. 중복 이름 체크 (Query)
+            const rsvpRef = collection(db, "rsvps");
+            const q = query(rsvpRef, where("visitor", "==", visitor));
+            const querySnapshot = await getDocs(q);
+
+            if (!querySnapshot.empty) {
+                alert(`'${visitor}'님은 이미 등록되어 있습니다!`);
+                btnRsvp.disabled = false;
+                btnRsvp.innerText = "참여 등록하기";
+                return;
+            }
+
+            // 3. 데이터 저장
+            await addDoc(rsvpRef, {
+                inviter: inviter,
+                visitor: visitor,
+                createdAt: serverTimestamp()
+            });
+
+            alert("✅ 접수되었습니다! 공연장에서 뵙겠습니다.");
+            document.getElementById("visitorName").value = ""; // 입력창 초기화
+            
+        } catch (error) {
+            console.error("Error adding RSVP: ", error);
+            alert("저장 중 오류가 발생했습니다.");
+        } finally {
+            btnRsvp.disabled = false;
+            btnRsvp.innerText = "참여 등록하기";
+        }
+    });
+
+
+    // ==========================================================
+    // [기능 2] 방명록 (Guestbook)
+    // ==========================================================
+    const btnGuestbook = document.getElementById("btnGuestbook");
+    const listContainer = document.getElementById("guestbookList");
+    const btnLoadMore = document.getElementById("btnLoadMore");
+    
+    let currentLimit = 8; // 처음에는 8개만 보여줌
+    let unsubscribe = null; // 리스너 해제용 변수
+
+    // 2-1. 방명록 등록
+    btnGuestbook.addEventListener("click", async () => {
+        const nickname = document.getElementById("guestName").value.trim();
+        const content = document.getElementById("guestContent").value.trim();
+
+        if (!nickname || !content) return alert("닉네임과 내용을 모두 입력해주세요.");
+        if (nickname.length > 10) return alert("닉네임은 10자 이내여야 합니다.");
+        if (content.length > 200) return alert("내용은 200자 이내여야 합니다.");
+
+        try {
+            await addDoc(collection(db, "guestbook"), {
+                nickname: nickname,
+                content: content,
+                createdAt: serverTimestamp()
+            });
+            // 입력창 초기화
+            document.getElementById("guestName").value = "";
+            document.getElementById("guestContent").value = "";
+        } catch (error) {
+            console.error("Error adding guestbook: ", error);
+            alert("방명록 등록 실패");
+        }
+    });
+
+    // 2-2. 방명록 목록 불러오기 (Real-time + Pagination Logic)
+    function loadGuestbook() {
+        // 기존 리스너가 있다면 해제 (중복 실행 방지)
+        if (unsubscribe) unsubscribe();
+
+        const q = query(
+            collection(db, "guestbook"),
+            orderBy("createdAt", "desc"), // 최신순
+            limit(currentLimit) // 개수 제한
+        );
+
+        unsubscribe = onSnapshot(q, (snapshot) => {
+            listContainer.innerHTML = ""; // 기존 목록 비우기
+
+            if (snapshot.empty) {
+                listContainer.innerHTML = '<div class="text-center text-secondary py-3">아직 작성된 방명록이 없습니다.<br>첫 글의 주인공이 되어보세요!</div>';
+                btnLoadMore.style.display = "none";
+                return;
+            }
+
+            snapshot.forEach((doc) => {
+                const data = doc.data();
+                const date = data.createdAt ? data.createdAt.toDate() : new Date();
+                const dateString = `${date.getMonth() + 1}/${date.getDate()} ${date.getHours()}:${String(date.getMinutes()).padStart(2, '0')}`;
+
+                // HTML 인젝션 방지 (XSS Protection)
+                const safeNickname = escapeHtml(data.nickname);
+                const safeContent = escapeHtml(data.content);
+
+                const cardHtml = `
+                    <div class="guestbook-card">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <strong class="text-warning">${safeNickname}</strong>
+                            <span class="guest-meta">${dateString}</span>
+                        </div>
+                        <div class="text-break" style="white-space: pre-wrap; font-size: 0.95rem;">${safeContent}</div>
+                    </div>
+                `;
+                listContainer.innerHTML += cardHtml;
+            });
+
+            // 더 보기 버튼 표시 여부 결정
+            // (가져온 개수가 현재 제한과 같다면 더 있을 가능성이 높음 -> 버튼 표시)
+            // (정확히는 다음 데이터 존재 여부를 체크해야 하지만, 간편한 구현을 위해 개수로 판단)
+            if (snapshot.docs.length >= currentLimit) {
+                btnLoadMore.style.display = "inline-block";
+            } else {
+                btnLoadMore.style.display = "none";
+            }
+        });
+    }
+
+    // 2-3. 더 보기 버튼 클릭 시
+    btnLoadMore.addEventListener("click", () => {
+        currentLimit += 8; // 8개씩 더 보여줌
+        loadGuestbook(); // 쿼리 업데이트
+    });
+
+    // 초기 로딩
+    loadGuestbook();
+
+
+    // [유틸리티] HTML 특수문자 변환 (보안)
+    function escapeHtml(text) {
+        if (!text) return "";
+        return text
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+
+</script>
+</body>
+</html>
