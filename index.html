@@ -65,10 +65,10 @@
             box-shadow: 0 0 0 0.25rem rgba(108, 92, 231, 0.25);
         }
 
-        /* [수정] Placeholder(입력 전 안내 문구) 색상 밝게 변경 */
+        /* Placeholder(입력 전 안내 문구) 색상 밝게 변경 */
         .form-control::placeholder {
-            color: #cccccc !important; /* 밝은 회색 */
-            opacity: 1; /* 파이어폭스 등 투명도 이슈 해결 */
+            color: #cccccc !important; 
+            opacity: 1;
         }
         
         /* 안내사항 강조 */
@@ -90,15 +90,15 @@
             background-color: #5b4cc4;
         }
         
-        /* [수정됨] 네이버 지도 버튼 스타일 (초록색 배경, 흰색 글씨) */
+        /* 네이버 지도 버튼 스타일 */
         .btn-naver {
-            background-color: #03C75A; /* 네이버 공식 그린 컬러 */
+            background-color: #03C75A;
             color: #ffffff;
             font-weight: bold;
             border: none;
         }
         .btn-naver:hover {
-            background-color: #02b351; /* 호버 시 약간 진하게 */
+            background-color: #02b351;
             color: #ffffff;
         }
         
@@ -119,7 +119,7 @@
             color: #888;
         }
 
-        /* [추가됨] 스크롤 애니메이션 효과 */
+        /* 스크롤 애니메이션 & 섹션 간격 조정 */
         .fade-in-section {
             opacity: 0;
             transform: translateY(30px);
@@ -138,7 +138,6 @@
     
     <!-- [섹션 1: 메인] -->
     <div class="poster-wrapper fade-in-section">
-        <!-- poster가 없으면 placeholder 이미지가 뜹니다 -->
         <img src="poster4.jpg" onerror="this.src='https://placehold.co/600x800/222/FFF?text=Da+JungHan+Band'" class="poster-img" alt="공연 포스터">
         <div class="p-4 bg-gradient-dark">
             <h1 class="fw-bold display-6">2026 GROOVE<br>MUSIC LIVE</h1>
@@ -162,13 +161,11 @@
                     <div class="fw-bold">서울 중랑구 동일로 711 지하 1층</div>
                     <div>그루브뮤직스튜디오</div>
                     <div class="mt-2">
-                        <!-- [수정됨] 네이버 지도 링크 및 버튼 스타일 적용 -->
                         <a href="https://map.naver.com/p/entry/place/1399123418?placePath=%252Fhome%253Fentry%253Dplt&searchType=place&lng=127.0799167&lat=37.5940504" target="_blank" class="btn btn-naver w-100 btn-sm">📍 네이버 지도 바로가기</a>
                     </div>
                 </div>
 
                 <div class="alert alert-dark border-secondary" role="alert">
-                    <!-- [수정] text-warning(노란색)을 text-black(검은색)으로 변경 -->
                     <h6 class="fw-bold text-black mb-2">⚠️ 안내사항</h6>
                     <ul class="notice-list ps-3 mb-0">
                         <li>🎤 외부 음식 반입 가능합니다.<br><span class="text-secondary small">(배달도 가능하나 가급적 포장 이용해주시면 감사하겠습니다.)</span></li>
@@ -208,6 +205,7 @@
         </div>
 
         <!-- [섹션 4: 방명록] -->
+        <!-- 방명록 입력폼과 리스트를 하나의 fade-in-section으로 묶어서 함께 나타나게 함 -->
         <div class="fade-in-section">
             <div class="section-title">방명록</div>
             <div class="info-box mb-4">
@@ -219,7 +217,6 @@
                         <input type="text" class="form-control" id="guestContent" placeholder="내용" maxlength="200">
                     </div>
                 </div>
-                <!-- [추가됨] 방명록 작성 경고 문구 -->
                 <div class="form-text text-secondary mb-2" style="font-size: 0.75rem;">
                     * 개인정보 노출, 욕설 등 부적절한 내용은 삼가해주세요.
                 </div>
@@ -228,12 +225,11 @@
 
             <!-- 방명록 리스트 영역 -->
             <div id="guestbookList">
-                <!-- 데이터가 로딩되면 여기에 카드가 추가됩니다 -->
                 <div class="text-center text-secondary py-3">불러오는 중...</div>
             </div>
             
-            <!-- 더보기 버튼 (초기엔 숨김) -->
-            <div class="text-center mt-3 mb-5">
+            <!-- 더보기 버튼 -->
+            <div class="text-center mt-3">
                 <button id="btnLoadMore" class="btn btn-dark btn-sm rounded-pill px-4" style="display: none;">
                     👇 더 보기
                 </button>
@@ -247,26 +243,24 @@
     </footer>
 </div>
 
-<!-- [추가됨] 스크롤 애니메이션 스크립트 -->
+<!-- 스크롤 애니메이션 스크립트 -->
 <script>
     document.addEventListener("DOMContentLoaded", function() {
-        // Intersection Observer 설정
         const observerOptions = {
             root: null,
             rootMargin: '0px',
-            threshold: 0.1 // 요소가 10% 정도 보일 때 실행
+            threshold: 0.1 
         };
 
         const observer = new IntersectionObserver((entries, observer) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
                     entry.target.classList.add('is-visible');
-                    observer.unobserve(entry.target); // 한 번 애니메이션 후 감시 중단
+                    observer.unobserve(entry.target); 
                 }
             });
         }, observerOptions);
 
-        // .fade-in-section 클래스를 가진 모든 요소 관찰 시작
         const sections = document.querySelectorAll('.fade-in-section');
         sections.forEach(section => {
             observer.observe(section);
@@ -276,7 +270,6 @@
 
 <!-- Firebase Modular SDK -->
 <script type="module">
-    // Firebase 라이브러리 import (CDN)
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
     import { 
         getFirestore, 
@@ -291,9 +284,6 @@
         serverTimestamp 
     } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
-    // ==========================================================
-    // 1. Firebase 설정 (여기에 복사한 Config를 넣으세요!)
-    // ==========================================================
     const firebaseConfig = {
       apiKey: "AIzaSyAXBBLO3VVvrA3cNmcRLlrkEJdJqdLbjUo",
       authDomain: "band-concert-invite.firebaseapp.com",
@@ -304,7 +294,6 @@
       measurementId: "G-YDFCDHJJ71"
     };
 
-    // Firebase 초기화
     let app, db;
     try {
         app = initializeApp(firebaseConfig);
@@ -314,26 +303,21 @@
         alert("시스템 오류: Firebase 설정이 필요합니다.");
     }
 
-    // ==========================================================
-    // [기능 1] 참여 여부 접수 (RSVP)
-    // ==========================================================
+    // [기능 1] 참여 여부 접수
     const btnRsvp = document.getElementById("btnRsvp");
     
     btnRsvp.addEventListener("click", async () => {
         const inviter = document.getElementById("inviterSelect").value;
         const visitor = document.getElementById("visitorName").value.trim();
 
-        // 1. 유효성 검사
         if (!inviter) return alert("초대 지인 이름을 선택해주세요.");
         if (!visitor) return alert("본인 이름을 입력해주세요.");
         if (visitor.length > 10) return alert("이름은 10자를 넘을 수 없습니다.");
 
-        // 버튼 비활성화 (중복 클릭 방지)
         btnRsvp.disabled = true;
         btnRsvp.innerText = "처리 중...";
 
         try {
-            // 2. 중복 이름 체크 (Query)
             const rsvpRef = collection(db, "rsvps");
             const q = query(rsvpRef, where("visitor", "==", visitor));
             const querySnapshot = await getDocs(q);
@@ -345,7 +329,6 @@
                 return;
             }
 
-            // 3. 데이터 저장
             await addDoc(rsvpRef, {
                 inviter: inviter,
                 visitor: visitor,
@@ -353,11 +336,10 @@
             });
 
             alert("✅ 접수되었습니다! 공연장에서 뵙겠습니다.");
-            document.getElementById("visitorName").value = ""; // 입력창 초기화
+            document.getElementById("visitorName").value = "";
             
         } catch (error) {
             console.error("Error adding RSVP: ", error);
-            // [수정 포인트 1] 참여 접수 에러 메시지 커스텀
             if(error.code === 'permission-denied') {
                 alert("저장 실패: 권한이 없습니다. (파이어베이스 규칙을 확인하세요)");
             } else if (error.code === 'unavailable') {
@@ -371,18 +353,14 @@
         }
     });
 
-
-    // ==========================================================
-    // [기능 2] 방명록 (Guestbook)
-    // ==========================================================
+    // [기능 2] 방명록
     const btnGuestbook = document.getElementById("btnGuestbook");
     const listContainer = document.getElementById("guestbookList");
     const btnLoadMore = document.getElementById("btnLoadMore");
     
-    let currentLimit = 8; // 처음에는 8개만 보여줌
-    let unsubscribe = null; // 리스너 해제용 변수
+    let currentLimit = 8; 
+    let unsubscribe = null; 
 
-    // 2-1. 방명록 등록
     btnGuestbook.addEventListener("click", async () => {
         const nickname = document.getElementById("guestName").value.trim();
         const content = document.getElementById("guestContent").value.trim();
@@ -397,12 +375,10 @@
                 content: content,
                 createdAt: serverTimestamp()
             });
-            // 입력창 초기화
             document.getElementById("guestName").value = "";
             document.getElementById("guestContent").value = "";
         } catch (error) {
             console.error("Error adding guestbook: ", error);
-            // [수정 포인트 2] 방명록 작성 에러 메시지 커스텀
             if(error.code === 'permission-denied') {
                 alert("등록 실패: 권한이 없습니다.");
             } else {
@@ -411,19 +387,16 @@
         }
     });
 
-    // 2-2. 방명록 목록 불러오기 (Real-time + Pagination Logic)
     function loadGuestbook() {
-        // 기존 리스너가 있다면 해제 (중복 실행 방지)
         if (unsubscribe) unsubscribe();
 
         const q = query(
             collection(db, "guestbook"),
-            orderBy("createdAt", "desc"), // 최신순
-            limit(currentLimit) // 개수 제한
+            orderBy("createdAt", "desc"),
+            limit(currentLimit)
         );
 
         unsubscribe = onSnapshot(q, (snapshot) => {
-            listContainer.innerHTML = ""; // 기존 목록 비우기
 
             if (snapshot.empty) {
                 listContainer.innerHTML = '<div class="text-center text-secondary py-3">아직 작성된 방명록이 없습니다.<br>첫 글의 주인공이 되어보세요!</div>';
@@ -436,7 +409,6 @@
                 const date = data.createdAt ? data.createdAt.toDate() : new Date();
                 const dateString = `${date.getMonth() + 1}/${date.getDate()} ${date.getHours()}:${String(date.getMinutes()).padStart(2, '0')}`;
 
-                // HTML 인젝션 방지 (XSS Protection)
                 const safeNickname = escapeHtml(data.nickname);
                 const safeContent = escapeHtml(data.content);
 
@@ -452,16 +424,12 @@
                 listContainer.innerHTML += cardHtml;
             });
 
-            // 더 보기 버튼 표시 여부 결정
-            // (가져온 개수가 현재 제한과 같다면 더 있을 가능성이 높음 -> 버튼 표시)
-            // (정확히는 다음 데이터 존재 여부를 체크해야 하지만, 간편한 구현을 위해 개수로 판단)
             if (snapshot.docs.length >= currentLimit) {
                 btnLoadMore.style.display = "inline-block";
             } else {
                 btnLoadMore.style.display = "none";
             }
         }, (error) => {
-            // [수정 포인트 3] 방명록 불러오기 에러 메시지 (화면에 표시되는 부분)
             console.error("Error fetching guestbook: ", error);
             if (error.code === 'permission-denied') {
                 listContainer.innerHTML = `<div class="alert alert-danger">데이터 권한이 없습니다.<br>파이어베이스 설정을 확인하세요.</div>`;
@@ -473,17 +441,13 @@
         });
     }
 
-    // 2-3. 더 보기 버튼 클릭 시
     btnLoadMore.addEventListener("click", () => {
-        currentLimit += 8; // 8개씩 더 보여줌
-        loadGuestbook(); // 쿼리 업데이트
+        currentLimit += 8;
+        loadGuestbook();
     });
 
-    // 초기 로딩
     loadGuestbook();
 
-
-    // [유틸리티] HTML 특수문자 변환 (보안)
     function escapeHtml(text) {
         if (!text) return "";
         return text
