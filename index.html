@@ -26,7 +26,7 @@
             width: 100%;
             border-radius: 0 0 20px 20px;
             overflow: hidden;
-            margin-bottom: 30px;
+            /* margin-bottom: 30px; -> fade-in-section의 마진(80px)으로 대체 */
             box-shadow: 0 10px 30px rgba(255, 255, 255, 0.1);
         }
         .poster-img {
@@ -125,6 +125,7 @@
             transform: translateY(30px);
             transition: opacity 0.8s ease-out, transform 0.8s ease-out;
             will-change: opacity, transform;
+            margin-bottom: 80px; /* [수정] 각 섹션 사이를 넉넉하게 띄움 (엔터 2~3번 간격) */
         }
         .fade-in-section.is-visible {
             opacity: 1;
@@ -397,6 +398,7 @@
         );
 
         unsubscribe = onSnapshot(q, (snapshot) => {
+            listContainer.innerHTML = "";
 
             if (snapshot.empty) {
                 listContainer.innerHTML = '<div class="text-center text-secondary py-3">아직 작성된 방명록이 없습니다.<br>첫 글의 주인공이 되어보세요!</div>';
