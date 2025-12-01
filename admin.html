@@ -3,49 +3,69 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>관리자 페이지 - 참여자 목록</title>
+    <title>관리자 대시보드</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body { background-color: #f8f9fa; padding: 30px; }
-        .card { box-shadow: 0 4px 6px rgba(0,0,0,0.1); border: none; }
-        h1 { font-weight: 800; color: #333; }
+        .card { box-shadow: 0 4px 6px rgba(0,0,0,0.1); border: none; margin-bottom: 30px; }
+        h1 { font-weight: 800; color: #333; margin-bottom: 20px; }
+        .section-header { border-left: 5px solid #6c5ce7; padding-left: 15px; margin-bottom: 20px; }
         .badge-inviter { font-size: 0.9em; }
+        .table th { background-color: #2d3436; color: white; }
+        .btn-delete { font-size: 0.8rem; padding: 2px 8px; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1>📊 참여 신청 현황</h1>
-        <button onclick="window.location.reload()" class="btn btn-primary">새로고침</button>
+    <div class="d-flex justify-content-between align-items-center mb-5">
+        <h1>🛠️ 관리자 대시보드</h1>
+        <button onclick="window.location.reload()" class="btn btn-dark">🔄 새로고침</button>
     </div>
 
-    <!-- 요약 카드 -->
-    <div class="row mb-4">
-        <div class="col-md-4">
-            <div class="card p-3 text-center">
-                <h5 class="text-secondary">총 신청 인원</h5>
-                <h2 class="fw-bold text-primary" id="totalCount">0명</h2>
-            </div>
-        </div>
-    </div>
-
-    <!-- 데이터 테이블 -->
+    <!-- [섹션 1] 참여 신청 현황 -->
     <div class="card p-4">
+        <h3 class="section-header d-flex justify-content-between">
+            🎟️ 참여 신청 현황
+            <span class="badge bg-primary rounded-pill" id="rsvpCount">0명</span>
+        </h3>
         <div class="table-responsive">
             <table class="table table-hover align-middle">
-                <thead class="table-dark">
+                <thead>
                     <tr>
-                        <th scope="col">#</th>
-                        <th scope="col">신청일시</th>
-                        <th scope="col">방문자 이름</th>
-                        <th scope="col">초대자 (지인)</th>
+                        <th width="5%">#</th>
+                        <th width="20%">신청일시</th>
+                        <th width="15%">방문자 이름</th>
+                        <th width="15%">초대자</th>
+                        <th width="10%">관리</th>
                     </tr>
                 </thead>
                 <tbody id="rsvpTableBody">
+                    <tr><td colspan="5" class="text-center py-3">로딩 중...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- [섹션 2] 방명록 현황 -->
+    <div class="card p-4">
+        <h3 class="section-header d-flex justify-content-between" style="border-color: #00b894;">
+            📝 방명록 현황
+            <span class="badge bg-success rounded-pill" id="guestbookCount">0개</span>
+        </h3>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead>
                     <tr>
-                        <td colspan="4" class="text-center py-4">데이터를 불러오는 중입니다...</td>
+                        <th width="5%">#</th>
+                        <th width="20%">작성일시</th>
+                        <th width="15%">닉네임</th>
+                        <th width="50%">내용</th>
+                        <th width="10%">관리</th>
                     </tr>
+                </thead>
+                <tbody id="guestbookTableBody">
+                    <tr><td colspan="5" class="text-center py-3">로딩 중...</td></tr>
                 </tbody>
             </table>
         </div>
@@ -54,10 +74,11 @@
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-    import { getFirestore, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+    import { getFirestore, collection, getDocs, query, orderBy, doc, deleteDoc } 
+    from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
     // =================================================================
-    // [중요] index.html에 넣었던 본인의 Firebase 설정을 여기에 똑같이 붙여넣으세요!
+    // [필수] 여기에 본인의 Firebase Config를 붙여넣으세요!
     // =================================================================
     const firebaseConfig = {
       apiKey: "AIzaSyAXBBLO3VVvrA3cNmcRLlrkEJdJqdLbjUo",
@@ -73,18 +94,32 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
+    // 전역 함수로 만들기 (HTML 버튼에서 onclick으로 호출하기 위해 window 객체에 등록)
+    window.deleteItem = async (collectionName, docId) => {
+        if (confirm("정말로 이 데이터를 삭제하시겠습니까?\n(삭제 후에는 복구할 수 없습니다)")) {
+            try {
+                await deleteDoc(doc(db, collectionName, docId));
+                alert("삭제되었습니다.");
+                // 화면 새로고침하여 반영
+                window.location.reload();
+            } catch (error) {
+                console.error("삭제 실패:", error);
+                alert("삭제 중 오류가 발생했습니다 권한을 확인하세요.");
+            }
+        }
+    };
+
+    // 1. 참여 명단 불러오기
     async function loadRsvps() {
         const tableBody = document.getElementById("rsvpTableBody");
-        const totalCount = document.getElementById("totalCount");
+        const countSpan = document.getElementById("rsvpCount");
 
         try {
-            // 최신순으로 정렬해서 가져오기
             const q = query(collection(db, "rsvps"), orderBy("createdAt", "desc"));
             const querySnapshot = await getDocs(q);
 
             if (querySnapshot.empty) {
-                tableBody.innerHTML = '<tr><td colspan="4" class="text-center py-4">아직 신청자가 없습니다.</td></tr>';
-                totalCount.innerText = "0명";
+                tableBody.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-secondary">데이터가 없습니다.</td></tr>';
                 return;
             }
 
@@ -94,41 +129,92 @@
             querySnapshot.forEach((doc) => {
                 count++;
                 const data = doc.data();
+                const docId = doc.id; // 삭제할 때 필요한 문서 ID
                 
-                // 날짜 변환
                 let dateStr = "-";
                 if (data.createdAt) {
                     const date = data.createdAt.toDate();
                     dateStr = `${date.getMonth() + 1}/${date.getDate()} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
                 }
 
-                // 초대자에 따른 뱃지 색상 (보기 편하게)
-                let badgeColor = "bg-secondary";
-                if (data.inviter === "멤버A") badgeColor = "bg-primary";
-                else if (data.inviter === "멤버B") badgeColor = "bg-success";
-                else if (data.inviter === "멤버C") badgeColor = "bg-warning text-dark";
-
                 html += `
                     <tr>
                         <td>${count}</td>
                         <td class="text-secondary small">${dateStr}</td>
                         <td class="fw-bold">${data.visitor}</td>
-                        <td><span class="badge ${badgeColor} badge-inviter">${data.inviter}</span></td>
+                        <td><span class="badge bg-secondary badge-inviter">${data.inviter}</span></td>
+                        <td>
+                            <button class="btn btn-danger btn-delete" onclick="deleteItem('rsvps', '${docId}')">삭제</button>
+                        </td>
                     </tr>
                 `;
             });
 
             tableBody.innerHTML = html;
-            totalCount.innerText = count + "명";
+            countSpan.innerText = count + "명";
 
         } catch (error) {
             console.error(error);
-            alert("데이터를 불러오는데 실패했습니다. (콘솔 확인)");
+            tableBody.innerHTML = '<tr><td colspan="5" class="text-center text-danger">로드 실패</td></tr>';
+        }
+    }
+
+    // 2. 방명록 불러오기
+    async function loadGuestbook() {
+        const tableBody = document.getElementById("guestbookTableBody");
+        const countSpan = document.getElementById("guestbookCount");
+
+        try {
+            const q = query(collection(db, "guestbook"), orderBy("createdAt", "desc"));
+            const querySnapshot = await getDocs(q);
+
+            if (querySnapshot.empty) {
+                tableBody.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-secondary">데이터가 없습니다.</td></tr>';
+                return;
+            }
+
+            let html = "";
+            let count = 0;
+
+            querySnapshot.forEach((doc) => {
+                count++;
+                const data = doc.data();
+                const docId = doc.id;
+                
+                let dateStr = "-";
+                if (data.createdAt) {
+                    const date = data.createdAt.toDate();
+                    dateStr = `${date.getMonth() + 1}/${date.getDate()} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
+                }
+
+                // 내용이 너무 길면 자르기
+                const content = data.content.length > 50 ? data.content.substring(0, 50) + "..." : data.content;
+
+                html += `
+                    <tr>
+                        <td>${count}</td>
+                        <td class="text-secondary small">${dateStr}</td>
+                        <td class="fw-bold text-primary">${data.nickname}</td>
+                        <td>${content}</td>
+                        <td>
+                            <button class="btn btn-danger btn-delete" onclick="deleteItem('guestbook', '${docId}')">삭제</button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            tableBody.innerHTML = html;
+            countSpan.innerText = count + "개";
+
+        } catch (error) {
+            console.error(error);
+            tableBody.innerHTML = '<tr><td colspan="5" class="text-center text-danger">로드 실패</td></tr>';
         }
     }
 
     // 실행
     loadRsvps();
+    loadGuestbook();
 </script>
 
 </body>
