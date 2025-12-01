@@ -33,6 +33,18 @@
             max-width: 400px;
             box-shadow: 0 10px 25px rgba(0,0,0,0.5);
         }
+        
+        /* 정렬 버튼 스타일 */
+        .btn-sort {
+            font-size: 0.8rem;
+            margin-left: 5px;
+            border-radius: 20px;
+        }
+        .btn-sort.active {
+            background-color: #6c5ce7;
+            color: white;
+            border-color: #6c5ce7;
+        }
     </style>
 </head>
 <body>
@@ -53,16 +65,26 @@
     <div class="d-flex justify-content-between align-items-center mb-5">
         <h1>🛠️ 관리자 대시보드</h1>
         <div>
+            <!-- 로그아웃 버튼 제거됨 -->
             <button onclick="window.location.reload()" class="btn btn-dark">🔄 새로고침</button>
         </div>
     </div>
 
     <!-- [섹션 1] 참여 신청 현황 -->
     <div class="card p-4">
-        <h3 class="section-header d-flex justify-content-between">
-            🎟️ 참여 신청 현황
-            <span class="badge bg-primary rounded-pill" id="rsvpCount">0명</span>
-        </h3>
+        <div class="d-flex justify-content-between align-items-start mb-3">
+            <h3 class="section-header mb-0">
+                🎟️ 참여 신청 현황
+                <span class="badge bg-primary rounded-pill" id="rsvpCount">0명</span>
+            </h3>
+            
+            <!-- [추가된 기능] 정렬 버튼 그룹 -->
+            <div class="btn-group" role="group">
+                <button type="button" class="btn btn-outline-secondary btn-sort active" id="btnSortDate" onclick="changeSort('date')">📅 날짜순</button>
+                <button type="button" class="btn btn-outline-secondary btn-sort" id="btnSortInviter" onclick="changeSort('inviter')">👤 초대자순</button>
+            </div>
+        </div>
+
         <div class="table-responsive">
             <table class="table table-hover align-middle">
                 <thead>
@@ -128,7 +150,6 @@
 
     // 2. 로그인 확인 함수
     window.checkPassword = async function() {
-        // HTTPS 환경 체크 (로컬호스트나 깃허브 페이지에서는 정상 작동)
         if (!window.isSecureContext) {
             alert("보안 오류: 이 페이지는 HTTPS(깃허브 등) 환경에서만 작동합니다.");
             return;
@@ -146,10 +167,7 @@
             const inputHash = await window.sha256(input);
             
             if (inputHash === ADMIN_HASH) {
-                // 로그인 성공!
-                // 세션 스토리지에 '로그인됨' 상태 저장 (브라우저 닫기 전까지 유지)
                 sessionStorage.setItem("adminAuth", "true");
-                
                 showAdminScreen();
             } else {
                 msgDiv.innerText = "비밀번호가 틀렸습니다.";
@@ -162,8 +180,6 @@
         }
     }
 
-    // [수정됨] 로그아웃 함수 제거
-
     // 3. 관리자 화면 보여주기 & 데이터 로드
     function showAdminScreen() {
         document.getElementById("login-overlay").style.display = "none";
@@ -171,7 +187,6 @@
         initAdminPage();
     }
 
-    // [자동 로그인 체크] 페이지 로드 시 세션 확인
     window.onload = function() {
         if (sessionStorage.getItem("adminAuth") === "true") {
             showAdminScreen();
@@ -191,10 +206,11 @@
       measurementId: "G-YDFCDHJJ71"
     };
 
-    // Firebase 초기화 변수
     let app, db;
+    // [추가] 참여자 데이터를 저장할 전역 변수
+    let globalRsvpData = [];
+    let currentSortMode = 'date'; // 'date' or 'inviter'
 
-    // 데이터 로딩 함수 (로그인 성공 후 실행됨)
     function initAdminPage() {
         app = initializeApp(firebaseConfig);
         db = getFirestore(app);
@@ -213,7 +229,22 @@
             }
         };
 
-        // 데이터 로드 실행
+        // 정렬 변경 함수
+        window.changeSort = function(mode) {
+            currentSortMode = mode;
+            
+            // 버튼 스타일 업데이트
+            if(mode === 'date') {
+                document.getElementById('btnSortDate').classList.add('active');
+                document.getElementById('btnSortInviter').classList.remove('active');
+            } else {
+                document.getElementById('btnSortDate').classList.remove('active');
+                document.getElementById('btnSortInviter').classList.add('active');
+            }
+
+            renderRsvpTable();
+        }
+
         loadRsvps();
         loadGuestbook();
     }
@@ -224,6 +255,7 @@
         const countSpan = document.getElementById("rsvpCount");
 
         try {
+            // 일단 DB에서는 최신순으로 가져옴
             const q = query(collection(db, "rsvps"), orderBy("createdAt", "desc"));
             const querySnapshot = await getDocs(q);
 
@@ -232,35 +264,17 @@
                 return;
             }
 
-            let html = "";
-            let count = 0;
-
+            // [변경] 데이터를 화면에 바로 안 그리고 전역 변수에 저장
+            globalRsvpData = [];
             querySnapshot.forEach((doc) => {
-                count++;
-                const data = doc.data();
-                const docId = doc.id; 
-                
-                let dateStr = "-";
-                if (data.createdAt) {
-                    const date = data.createdAt.toDate();
-                    dateStr = `${date.getMonth() + 1}/${date.getDate()} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
-                }
-
-                html += `
-                    <tr>
-                        <td>${count}</td>
-                        <td class="text-secondary small">${dateStr}</td>
-                        <td class="fw-bold">${data.visitor}</td>
-                        <td><span class="badge bg-secondary badge-inviter">${data.inviter}</span></td>
-                        <td>
-                            <button class="btn btn-danger btn-delete" onclick="deleteItem('rsvps', '${docId}')">삭제</button>
-                        </td>
-                    </tr>
-                `;
+                globalRsvpData.push({
+                    id: doc.id,
+                    ...doc.data()
+                });
             });
 
-            tableBody.innerHTML = html;
-            countSpan.innerText = count + "명";
+            // 저장된 데이터로 테이블 그리기
+            renderRsvpTable();
 
         } catch (error) {
             console.error(error);
@@ -268,7 +282,58 @@
         }
     }
 
-    // 2. 방명록 불러오기
+    // [추가] 테이블 렌더링 함수 (정렬 기능 포함)
+    function renderRsvpTable() {
+        const tableBody = document.getElementById("rsvpTableBody");
+        const countSpan = document.getElementById("rsvpCount");
+        
+        // 정렬 로직
+        const sortedData = [...globalRsvpData].sort((a, b) => {
+            if (currentSortMode === 'inviter') {
+                // 초대자 이름(가나다순) -> 날짜(최신순)
+                const nameCompare = a.inviter.localeCompare(b.inviter, 'ko');
+                if (nameCompare !== 0) return nameCompare;
+                return b.createdAt - a.createdAt; 
+            } else {
+                // 기본: 날짜(최신순)
+                return b.createdAt - a.createdAt;
+            }
+        });
+
+        let html = "";
+        let count = 0;
+
+        sortedData.forEach((data) => {
+            count++;
+            
+            let dateStr = "-";
+            if (data.createdAt) {
+                const date = data.createdAt.toDate();
+                dateStr = `${date.getMonth() + 1}/${date.getDate()} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
+            }
+
+            // 초대자에 따라 뱃지 색 다르게 (시각적 구분)
+            let badgeClass = "bg-secondary";
+            // 자주 나오는 이름에 색깔 부여하고 싶으면 아래에 추가 가능
+
+            html += `
+                <tr>
+                    <td>${count}</td>
+                    <td class="text-secondary small">${dateStr}</td>
+                    <td class="fw-bold">${data.visitor}</td>
+                    <td><span class="badge ${badgeClass} badge-inviter">${data.inviter}</span></td>
+                    <td>
+                        <button class="btn btn-danger btn-delete" onclick="deleteItem('rsvps', '${data.id}')">삭제</button>
+                    </td>
+                </tr>
+            `;
+        });
+
+        tableBody.innerHTML = html;
+        countSpan.innerText = globalRsvpData.length + "명";
+    }
+
+    // 2. 방명록 불러오기 (기존 유지)
     async function loadGuestbook() {
         const tableBody = document.getElementById("guestbookTableBody");
         const countSpan = document.getElementById("guestbookCount");
