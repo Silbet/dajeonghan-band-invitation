@@ -13,6 +13,26 @@
         .badge-inviter { font-size: 0.9em; }
         .table th { background-color: #2d3436; color: white; }
         .btn-delete { font-size: 0.8rem; padding: 2px 8px; }
+
+        /* [보안] 로그인 오버레이 스타일 */
+        #login-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85);
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .login-box {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            text-align: center;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+        }
     </style>
 </head>
 <body>
