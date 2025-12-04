@@ -4,9 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DA' JUNG HAN BAND LIVE 2026</title>
-    <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Google Fonts (Pretendard style) -->
     <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" rel="stylesheet">
     
     <style>
@@ -26,7 +24,6 @@
             width: 100%;
             border-radius: 0 0 20px 20px;
             overflow: hidden;
-            /* margin-bottom: 30px; -> fade-in-section의 마진(80px)으로 대체 */
             box-shadow: 0 10px 30px rgba(255, 255, 255, 0.1);
         }
         .poster-img {
@@ -125,7 +122,7 @@
             transform: translateY(30px);
             transition: opacity 0.8s ease-out, transform 0.8s ease-out;
             will-change: opacity, transform;
-            margin-bottom: 80px; /* [수정] 각 섹션 사이를 넉넉하게 띄움 (엔터 2~3번 간격) */
+            margin-bottom: 80px; 
         }
         .fade-in-section.is-visible {
             opacity: 1;
@@ -137,7 +134,6 @@
 
 <div class="container px-0">
     
-    <!-- [섹션 1: 메인] -->
     <div class="poster-wrapper fade-in-section">
         <img src="poster8.jpg" onerror="this.src='https://placehold.co/600x800/222/FFF?text=Da+JungHan+Band'" class="poster-img" alt="공연 포스터">
         <div class="p-4 bg-gradient-dark">
@@ -147,7 +143,6 @@
     </div>
 
     <div class="px-3">
-        <!-- [섹션 2: 상세 정보] -->
         <div class="fade-in-section">
             <div class="section-title">공연 정보</div>
             <div class="info-box">
@@ -178,7 +173,6 @@
             </div>
         </div>
 
-        <!-- [섹션 3: 참여 여부 접수 (RSVP)] -->
         <div class="fade-in-section">
             <div class="section-title">참여 여부 접수</div>
             <div class="info-box">
@@ -194,6 +188,9 @@
                         <option value="이석형">이석형</option>
                         <option value="황겸">황겸</option>
                     </select>
+                    <div class="form-text text-secondary" style="font-size: 0.75rem;">
+                        * 초대 지인에 할당된 등록 인원을 초과했습니다.
+                    </div>
                 </div>
                 <div class="mb-4">
                     <label for="visitorName" class="form-label text-secondary small">본인 이름 (실명)</label>
@@ -206,8 +203,6 @@
             </div>
         </div>
 
-        <!-- [섹션 4: 방명록] -->
-        <!-- 방명록 입력폼과 리스트를 하나의 fade-in-section으로 묶어서 함께 나타나게 함 -->
         <div class="fade-in-section">
             <div class="section-title">방명록</div>
             <div class="info-box mb-4">
@@ -225,12 +220,10 @@
                 <button id="btnGuestbook" class="btn btn-outline-light w-100 btn-sm">등록</button>
             </div>
 
-            <!-- 방명록 리스트 영역 -->
             <div id="guestbookList">
                 <div class="text-center text-secondary py-3">불러오는 중...</div>
             </div>
             
-            <!-- 더보기 버튼 -->
             <div class="text-center mt-3">
                 <button id="btnLoadMore" class="btn btn-dark btn-sm rounded-pill px-4" style="display: none;">
                     👇 더 보기
@@ -245,7 +238,6 @@
     </footer>
 </div>
 
-<!-- 스크롤 애니메이션 스크립트 -->
 <script>
     document.addEventListener("DOMContentLoaded", function() {
         const observerOptions = {
@@ -270,7 +262,6 @@
     });
 </script>
 
-<!-- Firebase Modular SDK -->
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
     import { 
@@ -295,6 +286,11 @@
       appId: "1:249455279668:web:27c0d16d9c2cf987df9461",
       measurementId: "G-YDFCDHJJ71"
     };
+
+    const MAX_INVITE_LIMIT = 4;
+
+    document.querySelector("#inviterSelect + .form-text").innerText = 
+        `* 초대 지인 1명당 최대 ${MAX_INVITE_LIMIT}명까지만 등록 가능합니다.`;
 
     let app, db;
     try {
@@ -321,16 +317,27 @@
 
         try {
             const rsvpRef = collection(db, "rsvps");
-            const q = query(rsvpRef, where("visitor", "==", visitor));
-            const querySnapshot = await getDocs(q);
 
-            if (!querySnapshot.empty) {
+            // 1. 인원수 제한 체크 (상수 사용)
+            const qLimit = query(rsvpRef, where("inviter", "==", inviter));
+            const limitSnapshot = await getDocs(qLimit);
+
+            if (limitSnapshot.size >= MAX_INVITE_LIMIT) {
+                // 메시지에도 상수를 넣어주었습니다. (` 백틱 사용)
+                alert(`'${inviter}'님의 초대 가능 인원(${MAX_INVITE_LIMIT}명)이 모두 찼습니다!\n더 이상 등록할 수 없습니다.`);
+                return; 
+            }
+
+            // 2. 중복 방문자 체크
+            const qDuplicate = query(rsvpRef, where("visitor", "==", visitor));
+            const duplicateSnapshot = await getDocs(qDuplicate);
+
+            if (!duplicateSnapshot.empty) {
                 alert(`'${visitor}'님은 이미 등록되어 있습니다!`);
-                btnRsvp.disabled = false;
-                btnRsvp.innerText = "참여 등록하기";
                 return;
             }
 
+            // 3. 저장
             await addDoc(rsvpRef, {
                 inviter: inviter,
                 visitor: visitor,
@@ -343,7 +350,7 @@
         } catch (error) {
             console.error("Error adding RSVP: ", error);
             if(error.code === 'permission-denied') {
-                alert("저장 실패: 권한이 없습니다. (파이어베이스 규칙을 확인하세요)");
+                alert("저장 실패: 권한이 없습니다.");
             } else if (error.code === 'unavailable') {
                 alert("저장 실패: 네트워크 연결을 확인해주세요.");
             } else {
