@@ -194,6 +194,9 @@
                         <option value="이석형">이석형</option>
                         <option value="황겸">황겸</option>
                     </select>
+                    <div class="form-text text-secondary" style="font-size: 0.75rem;">
+                        * 초대 지인 1명당 최대 4명까지만 등록 가능합니다.
+                    </div>
                 </div>
                 <div class="mb-4">
                     <label for="visitorName" class="form-label text-secondary small">본인 이름 (실명)</label>
@@ -321,13 +324,25 @@
 
         try {
             const rsvpRef = collection(db, "rsvps");
-            const q = query(rsvpRef, where("visitor", "==", visitor));
-            const querySnapshot = await getDocs(q);
 
-            if (!querySnapshot.empty) {
+            // --- [추가된 로직: 인원수 제한 체크] ---
+            // 해당 초대자(inviter)로 등록된 문서가 몇 개인지 확인합니다.
+            const qLimit = query(rsvpRef, where("inviter", "==", inviter));
+            const limitSnapshot = await getDocs(qLimit);
+
+            // 4명 이상이면 등록 차단
+            if (limitSnapshot.size >= 4) {
+                alert(`'${inviter}'님의 초대 가능 인원(4명)이 모두 찼습니다!\n더 이상 등록할 수 없습니다.`);
+                return; // 함수 종료
+            }
+            // ------------------------------------
+
+            // 중복 방문자 체크 (기존 로직)
+            const qDuplicate = query(rsvpRef, where("visitor", "==", visitor));
+            const duplicateSnapshot = await getDocs(qDuplicate);
+
+            if (!duplicateSnapshot.empty) {
                 alert(`'${visitor}'님은 이미 등록되어 있습니다!`);
-                btnRsvp.disabled = false;
-                btnRsvp.innerText = "참여 등록하기";
                 return;
             }
 
