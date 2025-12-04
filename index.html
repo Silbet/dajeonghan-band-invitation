@@ -189,7 +189,7 @@
                         <option value="황겸">황겸</option>
                     </select>
                     <div class="form-text text-secondary" style="font-size: 0.75rem;">
-                        * 초대 지인 1명당 최대 4명까지만 등록 가능합니다.
+                        * 초대 지인에 할당된 등록 인원을 초과했습니다.
                     </div>
                 </div>
                 <div class="mb-4">
@@ -287,6 +287,11 @@
       measurementId: "G-YDFCDHJJ71"
     };
 
+    const MAX_INVITE_LIMIT = 4;
+
+    document.querySelector("#inviterSelect + .form-text").innerText = 
+        `* 초대 지인 1명당 최대 ${MAX_INVITE_LIMIT}명까지만 등록 가능합니다.`;
+
     let app, db;
     try {
         app = initializeApp(firebaseConfig);
@@ -296,7 +301,7 @@
         alert("시스템 오류: Firebase 설정이 필요합니다.");
     }
 
-    // [기능 1] 참여 여부 접수 (수정됨)
+    // [기능 1] 참여 여부 접수
     const btnRsvp = document.getElementById("btnRsvp");
     
     btnRsvp.addEventListener("click", async () => {
@@ -313,19 +318,17 @@
         try {
             const rsvpRef = collection(db, "rsvps");
 
-            // --- [추가된 로직: 인원수 제한 체크] ---
-            // 해당 초대자(inviter)로 등록된 문서가 몇 개인지 확인합니다.
+            // 1. 인원수 제한 체크 (상수 사용)
             const qLimit = query(rsvpRef, where("inviter", "==", inviter));
             const limitSnapshot = await getDocs(qLimit);
 
-            // 4명 이상이면 등록 차단
-            if (limitSnapshot.size >= 4) {
-                alert(`'${inviter}'님의 초대 가능 인원(4명)이 모두 찼습니다!\n더 이상 등록할 수 없습니다.`);
-                return; // 함수 종료
+            if (limitSnapshot.size >= MAX_INVITE_LIMIT) {
+                // 메시지에도 상수를 넣어주었습니다. (` 백틱 사용)
+                alert(`'${inviter}'님의 초대 가능 인원(${MAX_INVITE_LIMIT}명)이 모두 찼습니다!\n더 이상 등록할 수 없습니다.`);
+                return; 
             }
-            // ------------------------------------
 
-            // 중복 방문자 체크 (기존 로직)
+            // 2. 중복 방문자 체크
             const qDuplicate = query(rsvpRef, where("visitor", "==", visitor));
             const duplicateSnapshot = await getDocs(qDuplicate);
 
@@ -334,7 +337,7 @@
                 return;
             }
 
-            // 저장
+            // 3. 저장
             await addDoc(rsvpRef, {
                 inviter: inviter,
                 visitor: visitor,
